@@ -42,7 +42,7 @@ static void __send_message(string str)
  */
 static int message_done()
 {
-    return MODE_RAW;	/* always return this */
+    return 1;	/* always return this */
 }
 
 /*
@@ -79,10 +79,18 @@ static int ssh_check_password(string str)
 }
 
 /*
- * NAME:	ssh_do_login()
+ * NAME:	ssh_login()
  * DESCRIPTION:	actually login the user
  */
-static void ssh_do_login()
+static void ssh_login()
+{
+}
+
+/*
+ * NAME:	ssh_shell()
+ * DESCRIPTION:	a shell session has been started
+ */
+static void ssh_shell()
 {
 }
 

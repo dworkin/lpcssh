@@ -1,0 +1,77 @@
+The central SSH object is obj/ssh_connection.  It can act as an independent
+object, or it can be inherited and incorporated into another object.  The
+SSH connection object inherits the "SSH glue", the interface with the
+mudlib which must define the following functions:
+
+    int user_input(string str);
+
+	This function is called by the SSH layer to pass on decrypted
+	input.  A return value of 0 indicates that the connection is
+	to be closed.  Other return values are of interest only to the
+	kernel library; in general, a return value of 1 should be used.
+
+    void set_mode(int mode);
+
+	This function will be called by the SSH layer when user_input()
+	returns some values above 1.  It is meaningful only for the
+	kernel library and can be empty in other mudlibs.
+
+    int ssh_get_user(string str);
+
+	Returns non-zero if the user exists and can be logged in.  This
+	function may be called repeatedly during the login procedure,
+	and a returned value of zero will immediately cause user
+	authentication to fail.
+
+    int ssh_check_password(string str);
+
+	Returns non-zero if the supplied password is correct, zero otherwise.
+	Should the SSH connection object be able to verify a public key for
+	the user, this function will not be called at all.
+
+    void ssh_login();
+
+	This function is called when the user logs in, but before any output
+	can be generated.
+
+    void ssh_shell();
+
+	This function is called when a shell session has been established
+	in a channel for the user, which marks the moment when the user
+	can securely send and receive information.
+
+    void create_glue();
+
+	This function is called to initialize the SSH glue.
+
+Additionally, the following functions are masked by the SSH connection
+object and are expected to be called by the mudlib:
+
+    int message(string str);
+
+	Called by the mudlib to transmit a message across the connection.
+	A return value of FALSE indicates that no more should be sent
+	until the next call to message_done().
+
+    int message_done();
+
+	Called when the last message sent has drained from the output buffer.
+
+And last, the following functions in the SSH layer should be called by
+the mudlib:
+
+    void start_transport(string version);
+
+	This function should be called after a SSH client has connected and
+	sent its version string.  The argument to the function is the version
+	string stripped of any trailing CR and NL characters.
+
+    int receive_message(string str);
+
+	This function should be called with (encrypted) input received on the
+	connection.  A return value of 0 indicates that the connection should
+	be closed.
+
+    void create_ssh();
+
+	This function should be called to initialize the SSH layer.

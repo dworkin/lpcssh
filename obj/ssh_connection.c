@@ -175,8 +175,8 @@ static int userauth(string str)
 			if (SSHD->valid_public_key(name, publickey) &&
 			    ssh_dsa_verify(data, publickey, signature)) {
 			    if (ssh_get_user(name)) {
+				ssh_login();
 				logged_in = TRUE;
-				ssh_do_login();
 				::message(make_mesg(SSH_MSG_USERAUTH_SUCCESS));
 			    } else {
 				/* no such user? */
@@ -197,8 +197,8 @@ static int userauth(string str)
 			password = get_string(str, offset + 1);
 			if (ssh_get_user(name) && ssh_check_password(password))
 			{
+			    ssh_login();
 			    logged_in = TRUE;
-			    ssh_do_login();
 			    ::message(make_mesg(SSH_MSG_USERAUTH_SUCCESS));
 			    break;
 			}
@@ -351,6 +351,7 @@ static int client(string str)
 		::message(make_mesg(SSH_MSG_CHANNEL_SUCCESS) +
 			  make_int(channel_id));
 	    }
+	    ssh_shell();
 	} else if (str[offset]) {
 	    ::message(make_mesg(SSH_MSG_CHANNEL_FAILURE) +
 		      make_int(channel_id));

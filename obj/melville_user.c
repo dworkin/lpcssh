@@ -63,7 +63,7 @@ static void receive_message(string str)
 	}
     }
 
-    if (ssh::receive_message(str) == MODE_DISCONNECT) {
+    if (ssh::receive_message(str) == 0) {
 	destruct_object(this_object());
     }
 }
@@ -75,7 +75,7 @@ static void receive_message(string str)
 static int user_input(string str)
 {
     user::receive_message(str);
-    return MODE_RAW;
+    return 1;
 }
 
 /*
@@ -96,7 +96,7 @@ static int send_message(mixed arg)
  */
 static void message_done()
 {
-    if (ssh::message_done() == MODE_DISCONNECT) {
+    if (ssh::message_done() == 0) {
 	destruct_object(this_object());
     }
 }
