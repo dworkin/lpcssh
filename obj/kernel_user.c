@@ -42,7 +42,7 @@ static object ssh_clone_object(string path, string owner)
  */
 void do_login()
 {
-    if (SYSTEM() && !query_conn()) {
+    if (SYSTEM() && query_conn() != previous_object()) {
 	connection(previous_object());
 	state[previous_object()] = STATE_NORMAL;
 	tell_audience(Name + " logs in.\n");
