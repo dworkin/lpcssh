@@ -227,47 +227,6 @@ static string get_mpint(string b, int i)
     return b[i + 4 .. i + 3 + len];
 }
 
-/*
- * NAME:	asn1_scan_int()
- * DESCRIPTION:	look for the next int in an ASN.1/DER encoded string
- */
-static int asn1_scan_int(string str, int offset)
-{
-    int tag, length, size;
-
-    for (;;) {
-	tag = str[offset++] & ASN_EXTENSION_ID;
-	if (tag == ASN_EXTENSION_ID) {
-	    /* ignore multi-octet identifier */
-	    while (str[offset++] & ASN_BIT) ;
-	}
-
-	length = str[offset++];
-	if (length & ASN_LONG_LEN) {
-	    /* multi-octet length */
-	    size = (length & 0xff) & ~ASN_LONG_LEN;
-	    length = 0;
-	    while (size != 0) {
-		length = (length << 8) + str[offset++];
-		--size;
-	    }
-	}
-
-	switch (tag) {
-	case ASN_INTEGER:
-	    return (length << 16) + offset;
-
-	case ASN_SEQUENCE:
-	    break;
-
-	default:	/* anything else */
-	    offset += length;
-	    break;
-	}
-    }
-}
-
-
 #define STRCASE(foo) case foo: return #foo
 
 /*

@@ -1,8 +1,10 @@
 # include "ssh.h"
+# include "asn1.h"
 
 # define DEBUG SSH_DEBUG
 
 inherit glue SSH_GLUE;
+private inherit ASN1_UTILS;
 private inherit SSH_UTILS;
 
 
@@ -357,27 +359,23 @@ static string better_random_string(int length)
  */
 private string ssh_dss_sign(string m, string host_key)
 {
-    int offset, length;
     string p, q, g, x;
     string k, r, s;
+    mixed *asn1;
 
-    /* retrieve params from key */
-    offset = asn1_scan_int(host_key, 0);
-    length = offset >> 16; offset &= 0xffff;
-    offset = asn1_scan_int(host_key, offset + length);
-    length = offset >> 16; offset &= 0xffff;
-    p = host_key[offset .. offset + length - 1];
-    offset = asn1_scan_int(host_key, offset + length);
-    length = offset >> 16; offset &= 0xffff;
-    q = host_key[offset .. offset + length - 1];
-    offset = asn1_scan_int(host_key, offset + length);
-    length = offset >> 16; offset &= 0xffff;
-    g = host_key[offset .. offset + length - 1];
-    offset = asn1_scan_int(host_key, offset + length);
-    length = offset >> 16; offset &= 0xffff;
-    offset = asn1_scan_int(host_key, offset + length);
-    length = offset >> 16; offset &= 0xffff;
-    x = host_key[offset .. offset + length - 1];
+    asn1 = parse_asn1(host_key, 0);
+    if (!asn1) {
+	error("Invalid Host Key");
+    }
+
+    /* parse_asn1() returns ({ parsed-data, offset }) */
+    asn1 = asn1[0];
+
+    /* Assume it's a sequence of 6 integers. */
+    p = asn1[ASN_CONTENTS][1][ASN_CONTENTS];
+    q = asn1[ASN_CONTENTS][2][ASN_CONTENTS];
+    g = asn1[ASN_CONTENTS][3][ASN_CONTENTS];
+    x = asn1[ASN_CONTENTS][5][ASN_CONTENTS];
 
     /* k = random 0 < k < q */
     do {
