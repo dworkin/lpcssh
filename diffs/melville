@@ -1,0 +1,94 @@
+--- system/driver.c.old	Fri Jun 12 06:32:28 1998
++++ system/driver.c	Thu Feb 26 16:02:07 2004
+@@ -13,6 +13,14 @@
+ 
+ #include <config.h>
+ #include <options.h>
++#include "/system/ssh/include/ssh.h"
++
++void ssh_message(string str)
++{
++    if (sscanf(previous_program(), "/system/ssh/%*s") != 0) {
++	send_message(str);
++    }
++}
+ 
+ /*
+  * NAME:	initialize
+@@ -23,6 +31,10 @@
+ static void initialize() {
+     send_message("Loading user.c\n") ;
+     compile_object(USER) ;
++    send_message("Loading ssh_user.c\n") ;
++    compile_object(SSH_USER) ;
++    send_message("Loading sshd.c\n") ;
++    call_other(compile_object(SSHD), "???");
+     send_message ("Loading player.c\n") ;
+     compile_object(PLAYER) ;
+     send_message ("Loading the user daemon\n") ;
+@@ -147,7 +159,16 @@
+  */
+ string path_include(string file, string path) {
+     if (path[0] != '/') {
+-	return file + "/../" + path;
++	switch (file) {
++	case "/system/ssh/lib/ssh.c":
++	case "/system/ssh/lib/ssh_utils.c":
++	case "/system/ssh/lib/ssh_melville.c":
++	case "/system/ssh/obj/ssh_connection.c":
++	    return "/system/ssh/include/" + path;
++
++	default:
++	    return file + "/../" + path;
++	}
+     }
+     return path;
+ }
+@@ -194,10 +215,25 @@
+ 
+ /* Binary connections are not yet supported. You could use one for
+    lots of things; intermud services, FTP, a variety of things.
+-   But Melville doesn't. */
++   But Melville doesn't do anything but SSH. */
+ 
+ static object binary_connect() {
+-    return 0 ;
++    object user, player, tmp ;
++
++    tmp =find_object(SSH_USER);
++    if (!tmp) {
++        tmp = compile_object(SSH_USER);
++    }
++    user = clone_object(tmp);
++    tmp =find_object(PLAYER);
++    if (!tmp) {
++        tmp = compile_object(PLAYER);
++    }
++    player = clone_object(tmp);
++    user->set_player(player);
++    player->set_user(user);
++
++    return user;
+ }
+ 
+ /*
+--- system/user/login.c.old	Fri Aug  5 23:19:08 1994
++++ system/user/login.c	Thu Feb 26 00:53:49 2004
+@@ -7,6 +7,17 @@
+ #include <config.h>
+ #include <options.h>
+ 
++/* start SSH changes */
++static int send_message(mixed arg)
++{
++    /*
++     * make this function maskable by redefining it at a level above the
++     * auto object.
++     */
++    return ::send_message(arg);
++}
++/* end SSH changes */
++
+ string password ;
+ string cap_name ;
+ string real_name ;
