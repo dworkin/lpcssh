@@ -81,7 +81,7 @@ private int valid_public_key(string name, string publickey)
 	int    i, sz;
 	string *lines;
 
-	lines = explode(implode(explode(str, "\r"), "\n"), "\n");
+	lines = explode(implode(explode(str, "\r"), ""), "\n");
 	sz = sizeof(lines);
 	for (i = 0; i < sz; i++) {
 	    if (lines[i] && strlen(lines[i])) {
