@@ -8,7 +8,7 @@
 # endif
 
 # ifdef MELVILLE_GLUE
-#  include "/secure/ssh/include/melville_ssh.h"
+#  include "/system/ssh/include/melville_ssh.h"
 # endif
 
 
