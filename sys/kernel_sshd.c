@@ -173,7 +173,7 @@ int valid_public_key(string name, string publickey)
 		if (lines[i] && strlen(lines[i])) {
 		    string pkey;
 
-		    pkey = parse_public_key(str);
+		    pkey = parse_public_key(lines[i]);
 		    if (pkey && pkey == publickey) {
 			return 1;
 		    }
