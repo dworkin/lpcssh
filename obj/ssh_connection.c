@@ -172,14 +172,15 @@ static int userauth(string str)
 
 			if (SSHD->valid_public_key(name, publickey) &&
 			    ssh_dsa_verify(data, publickey, signature)) {
-			    if (user_input(name) != MODE_DISCONNECT &&
-				query_user() &&
-				query_user()->passwordless_login()) {
+			    if (get_user(name)) {
+				do_login();
 				::message(make_mesg(SSH_MSG_USERAUTH_SUCCESS));
 			    } else {
+				/* no such user? */
 				::message(make_mesg(SSH_MSG_USERAUTH_FAILURE) +
 					  make_string("publickey,password") +
 					  "\0");
+				return MODE_DISCONNECT;
 			    }
 			} else {
 			    ::message(make_mesg(SSH_MSG_USERAUTH_FAILURE) +
@@ -191,9 +192,8 @@ static int userauth(string str)
 		case "password":
 		    if (!str[offset]) {
 			password = get_string(str, offset + 1);
-			if (user_input(name) != MODE_DISCONNECT &&
-			    query_user() &&
-			    user_input(password) != MODE_DISCONNECT) {
+			if (get_user(name) && check_password(password)) {
+			    do_login();
 			    ::message(make_mesg(SSH_MSG_USERAUTH_SUCCESS));
 			    break;
 			}
@@ -201,7 +201,10 @@ static int userauth(string str)
 			::message(make_mesg(SSH_MSG_USERAUTH_FAILURE) +
 				  make_string("login failed") +
 				  "\0");
-			break;
+			if (!get_user(name)) {
+			    /* not allowed to try again */
+			    return MODE_DISCONNECT;
+			}
 		    }
 		    ::message(make_mesg(SSH_MSG_USERAUTH_FAILURE) +
 			      make_string("publickey,password") +

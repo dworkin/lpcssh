@@ -273,10 +273,12 @@ int receive_message(string str)
 	case STATE_NEWPASSWD2:
 	    if (newpasswd == str) {
 		password = crypt(str);
+# if 0	/* oops, we don't have anywhere to save yet */
 		if (wiztool) {
 		    /* save wizards only */
 		    save_object(DEFAULT_USER_DIR + "/" + name + ".pwd");
 		}
+# endif
 		message("\nPassword changed.\n");
 	    } else {
 		message("\nMismatch; password not changed.\n");
@@ -297,17 +299,15 @@ int receive_message(string str)
 }
 
 /*
- * NAME:        passwordless_login()
- * DESCRIPTION: trust the ~System code to have authenticated the user and
- *              log it in.
+ * NAME:        do_login()
+ * DESCRIPTION: Trust the ~System code to have authenticated the user and
+ *              log it in.  This function is the only real change compared to
+ *		the standard user object in the kernel library; it exists so
+ *		that players can login using public key authentication.
  */
-int
-passwordless_login()
+void do_login()
 {
-    if (SYSTEM() && password) {
-	/*
-	 * Have faith in ~System, but still check this is a permanent account.
-	 */
+    if (SYSTEM() && !query_conn()) {
 	connection(previous_object());
 	state[previous_object()] = STATE_NORMAL;
 	tell_audience(Name + " logs in.\n");
@@ -319,7 +319,5 @@ passwordless_login()
 	    (name == "admin" || sizeof(query_users() & ({ name })) != 0)) {
 	    wiztool = clone_object(SSH_WIZTOOL, name);
 	}
-	return 1;
     }
-    return 0;
 }

@@ -13,6 +13,9 @@ inherit user LIB_USER;
 static void start_transport(string str);      /* supplied by transport layer */
 static void create_ssh();
 
+private string name;	/* name of this user */
+int tried_password;	/* password flag; kernel lib allows only one attempt */
+
 
 /*
  * NAME:	message()
@@ -116,6 +119,42 @@ void disconnect()
     if (previous_program() == LIB_USER) {
 	user::disconnect();
     }
+}
+
+/*
+ * NAME:	get_user()
+ * DESCRIPTION:	check if user exists and can login
+ */
+static int get_user(string str)
+{
+    if (name) {
+	return (str == name && !tried_password && query_user());
+    } else {
+	name = str;
+	return (user_input(str) != MODE_DISCONNECT && query_user());
+    }
+}
+
+/*
+ * NAME:	check_password()
+ * DESCRIPTION:	check whether a supplied password is correct
+ */
+static int check_password(string str)
+{
+    if (tried_password) {
+	return FALSE;
+    }
+    tried_password = TRUE;
+    return (user_input(str) != MODE_DISCONNECT);
+}
+
+/*
+ * NAME:	do_login()
+ * DESCRIPTION:	actually login the user
+ */
+static void do_login()
+{
+    query_user()->do_login();
 }
 
 /*
