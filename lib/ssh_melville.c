@@ -27,13 +27,6 @@ static void __send_message(string str)
     ::send_message(str);
 }
 
-static void send_message(mixed arg)
-{
-    if (typeof(arg) == T_STRING) {
-	message(arg);
-    }
-}
-
 static int message_done()
 {
     return MODE_RAW;
