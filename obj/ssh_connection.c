@@ -25,46 +25,6 @@ private int userauth_banner(string str)
 }
 
 /*
- * NAME:        valid_public_key()
- * DESCRIPTION: Check the ~/.ssh/ directory to see if this is an acceptable
- *              public key.
- */
-private int valid_public_key(string name, string publickey)
-{
-    string str;
-
-    str = read_file("~" + name + "/.ssh/id_dsa.pub");
-    if (str) {
-	string pkey;
-
-	sscanf(str, "%s\n", str);
-	pkey = parse_public_key(str);
-	if (pkey && pkey == publickey) {
-	    return 1;
-	}
-    }
-    str = read_file("~" + name + "/.ssh/authorized_keys");
-    if (str) {
-	int    i, sz;
-	string *lines;
-
-	lines = explode(implode(explode(str, "\r"), "\n"), "\n");
-	sz = sizeof(lines);
-	for (i = 0; i < sz; i++) {
-	    if (lines[i] && strlen(lines[i])) {
-		string pkey;
-
-		pkey = parse_public_key(str);
-		if (pkey && pkey == publickey) {
-		    return 1;
-		}
-	    }
-	}
-    }
-    return 0;
-}
-
-/*
  * NAME:        ssh_dsa_verify()
  * DESCRIPTION: verify that the signature was created with a given key
  */
@@ -159,7 +119,7 @@ static int userauth(string str)
 			blob = get_string(str, offset + 1 + 4 + strlen(algo));
 			switch (algo) {
 			case "ssh-dss":
-			    if (valid_public_key(name, blob)) {
+			    if (SSHD->valid_public_key(name, blob)) {
 				::message(make_mesg(SSH_MSG_USERAUTH_PK_OK) +
 					  make_string(algo) +
 					  make_string(blob));
@@ -171,7 +131,7 @@ static int userauth(string str)
 			    break;
 			default:
 			    ::message(make_mesg(SSH_MSG_USERAUTH_FAILURE) +
-				      make_string("password") +
+				      make_string("publickey,password") +
 				      "\0");
 			    break;
 			}
@@ -210,7 +170,7 @@ static int userauth(string str)
 			    make_string("ssh-dss") +
 			    make_string(publickey);
 
-			if (valid_public_key(name, publickey) &&
+			if (SSHD->valid_public_key(name, publickey) &&
 			    ssh_dsa_verify(data, publickey, signature)) {
 			    if (user_input(name) != MODE_DISCONNECT &&
 				query_user() &&
@@ -218,12 +178,12 @@ static int userauth(string str)
 				::message(make_mesg(SSH_MSG_USERAUTH_SUCCESS));
 			    } else {
 				::message(make_mesg(SSH_MSG_USERAUTH_FAILURE) +
-					  make_string("password") +
+					  make_string("publickey,password") +
 					  "\0");
 			    }
 			} else {
 			    ::message(make_mesg(SSH_MSG_USERAUTH_FAILURE) +
-				      make_string("password") +
+				      make_string("publickey,password") +
 				      "\0");
 			}
 		    }
@@ -244,7 +204,7 @@ static int userauth(string str)
 			break;
 		    }
 		    ::message(make_mesg(SSH_MSG_USERAUTH_FAILURE) +
-			      make_string("password") +
+			      make_string("publickey,password") +
 			      "\0");
 		    break;
 		default:
