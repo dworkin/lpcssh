@@ -221,7 +221,8 @@ int receive_message(string str)
 		    header = decrypt_string(header);
 		}
 		length = get_int(header, 0);
-		if (length <= 0 || length > 35000 - 4 || (length & 7) != 4) {
+		if (length < 32 - 4 || length > 35000 - 4 || (length & 7) != 4)
+		{
 		    DEBUG(0, "bad packet length " + length);
 		    catch {
 			__send_packet(make_mesg(SSH_MSG_DISCONNECT) +
