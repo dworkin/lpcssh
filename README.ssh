@@ -53,6 +53,8 @@ MELVILLE INSTALLATION:
 
  - Make a subdirectory ssh in the mudlib /system directory, and move these
    files into it.
+ - in the file include/ssh.h, change '# define KERNEL_GLUE' into
+   '# define MELVILLE_GLUE'.
  - Apply the diffs in diffs/melville.
  - As with the kernel library, it only works well for pre-existing users and
    you won't see anything when you login.
