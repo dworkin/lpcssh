@@ -58,6 +58,46 @@ string query_version()
 }
 
 /*
+ * NAME:        valid_public_key()
+ * DESCRIPTION: Check the ~/.ssh/ directory to see if this is an acceptable
+ *              public key.
+ */
+private int valid_public_key(string name, string publickey)
+{
+    string str;
+
+    str = read_file("~" + name + "/.ssh/id_dsa.pub");
+    if (str) {
+	string pkey;
+
+	sscanf(str, "%s\n", str);
+	pkey = parse_public_key(str);
+	if (pkey && pkey == publickey) {
+	    return 1;
+	}
+    }
+    str = read_file("~" + name + "/.ssh/authorized_keys");
+    if (str) {
+	int    i, sz;
+	string *lines;
+
+	lines = explode(implode(explode(str, "\r"), "\n"), "\n");
+	sz = sizeof(lines);
+	for (i = 0; i < sz; i++) {
+	    if (lines[i] && strlen(lines[i])) {
+		string pkey;
+
+		pkey = parse_public_key(str);
+		if (pkey && pkey == publickey) {
+		    return 1;
+		}
+	    }
+	}
+    }
+    return 0;
+}
+
+/*
  * NAME:	query_host_key()
  * DESCRIPTION:	return the (private) host key
  */
