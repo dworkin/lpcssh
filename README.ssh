@@ -1,5 +1,5 @@
-SSH login for DGD, version 0.1
-Written by Felix A. Croes  <felix@dworkin.nl>
+SSH login for DGD, version 0.2
+Version 0.1 written by Felix A. Croes  <felix@dworkin.nl>
 Released into the public domain.
 
 DGD 1.2.82 or later, with kernel library 1.2.25 or later required for this
@@ -18,7 +18,7 @@ FILES:
 
 INSTALLATION:
 
- - Extract these files in /usr/System of your mudlib.
+ - Move these files to /usr/System of your mudlib.
  - If you already have a file /usr/System/initd.c, add the following line
    to its create function:
 
