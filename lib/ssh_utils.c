@@ -123,14 +123,44 @@ static string random_string(int length)
 	str += str;
     }
     str = str[.. length - 1];
-    for (n = length & ~1; n != 0; ) {
-	/* create two random bytes at a time */
-	rand = random(65536);
+    for (n = length - length % 3; n != 0; ) {
+	/* create three random bytes at a time */
+	rand = random(0x1000000);
+	str[--n] = rand >> 16;
 	str[--n] = rand >> 8;
 	str[--n] = rand;
     }
-    if (length & 1) {
-	str[length - 1] = random(256);
+
+    switch (length % 3) {
+    case 1:
+	str[length - 1] = random(0x100);
+	break;
+
+    case 2:
+	rand = random(0x10000);
+	str[length - 2] = rand >> 8;
+	str[length - 1] = rand;
+	break;
+    }
+
+    return str;
+}
+
+/*
+ * NAME:	better_random_string()
+ * DESCRIPTION:	create a slightly more random string
+ */
+static string better_random_string(int length)
+{
+    string str;
+
+    str = "";
+    while (length >= 20) {
+	str += hash_sha1(random_string(20));
+	length -= 20;
+    }
+    if (length >= 0) {
+	str += hash_sha1(random_string(length))[.. length - 1];
     }
 
     return str;

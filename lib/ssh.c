@@ -334,26 +334,6 @@ private void flush_packet_buffer()
 }
 
 /*
- * NAME:	better_random_string()
- * DESCRIPTION:	create a slightly more random string
- */
-static string better_random_string(int length)
-{
-    string str;
-
-    str = "";
-    while (length >= 20) {
-	str += hash_sha1(random_string(20));
-	length -= 20;
-    }
-    if (length >= 0) {
-	str += hash_sha1(random_string(length))[.. length - 1];
-    }
-
-    return str;
-}
-
-/*
  * NAME:	ssh_dss_sign()
  * DESCRIPTION:	sign m with the host key
  */
