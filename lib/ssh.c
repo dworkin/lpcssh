@@ -249,7 +249,7 @@ int receive_message(string str)
 	    if (client_mac) {
 		length -= 20;
 	    }
-	    mode = SSH_GLUE_RLIMITS("process_message", str);
+	    mode = SSH_GLUE_RLIMITS(process_message, str);
 	    if (mode == MODE_DISCONNECT) {
 		return MODE_DISCONNECT;
 	    }

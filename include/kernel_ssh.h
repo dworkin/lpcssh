@@ -5,7 +5,7 @@
 
 # define SSH_GLUE		SSH_KERNEL_GLUE
 # define SSH_GLUE_CALL		(previous_program() == LIB_CONN)
-# define SSH_GLUE_RLIMITS(f, a)	call_limited(f, a)
+# define SSH_GLUE_RLIMITS(f, a)	call_limited(#f, a)
 
 # define SSH_KERNEL_GLUE	"/usr/System/lib/ssh_kernel"
 # define SSHD			"/usr/System/sys/kernel_sshd"
