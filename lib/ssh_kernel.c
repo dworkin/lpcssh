@@ -13,8 +13,8 @@ inherit user LIB_USER;
 static void start_transport(string str);      /* supplied by transport layer */
 static void create_ssh();
 
-private string name;	/* name of this user */
-int tried_password;	/* password flag; kernel lib allows only one attempt */
+private string name;		/* name of this user */
+private int tried_password;	/* password flag; by default only one attempt */
 
 
 /*
@@ -122,10 +122,10 @@ void disconnect()
 }
 
 /*
- * NAME:	get_user()
+ * NAME:	ssh_get_user()
  * DESCRIPTION:	check if user exists and can login
  */
-static int get_user(string str)
+static int ssh_get_user(string str)
 {
     if (name) {
 	return (str == name && !tried_password && query_user());
@@ -139,7 +139,7 @@ static int get_user(string str)
  * NAME:	check_password()
  * DESCRIPTION:	check whether a supplied password is correct
  */
-static int check_password(string str)
+static int ssh_check_password(string str)
 {
     if (tried_password) {
 	return FALSE;
@@ -149,10 +149,10 @@ static int check_password(string str)
 }
 
 /*
- * NAME:	do_login()
+ * NAME:	ssh_do_login()
  * DESCRIPTION:	actually login the user
  */
-static void do_login()
+static void ssh_do_login()
 {
     query_user()->do_login();
 }

@@ -4,77 +4,84 @@
 inherit ssh SSH_CONNECTION;
 inherit user "/system/user";
 
-private string buffer;
+private string buffer;	/* buffered input for first line */
 
+/*
+ * NAME:	create()
+ * DESCRIPTION:	initialize SSH user object
+ */
 void create()
 {
-    ssh::create();
+    ssh::create_ssh();
     user::create();
     buffer = "";
 }
 
-void open()
+/*
+ * NAME:	open()
+ * DESCRIPTION:	called when a new connection is opened
+ */
+static void open()
 {
     __send_message(SSHD->query_version() + "\r\n");
     user::open();	/* initialize but no messages yet */
 }
 
-void receive_message(string str)
+/*
+ * NAME:	receive_message()
+ * DESCRIPTION:	receive a message from the other side
+ */
+static void receive_message(string str)
 {
     if (buffer) {
-	int len;
-	string head, pre;
+	string version;
 
+	/*
+	 * Get the first line of input, and check whether it is a valid
+	 * SSH 2.0 version string.
+	 */
 	catch {
 	    buffer += str;
 	} : error("Connection line buffer overflow");
 
-	if (sscanf(buffer, "%s\r\n%s", str, buffer) != 0 ||
-	    sscanf(buffer, "%s\n%s", str, buffer) != 0) {
-	    while (sscanf(str, "%s\b%s", head, str) != 0) {
-		while (sscanf(head, "%s\x7f%s", pre, head) != 0) {
-		    len = strlen(pre);
-		    if (len != 0) {
-			head = pre[0 .. len - 2] + head;
-		    }
-		}
-		len = strlen(head);
-		if (len != 0) {
-		    str = head[0 .. len - 2] + str;
-		}
-	    }
-	    while (sscanf(str, "%s\x7f%s", head, str) != 0) {
-		len = strlen(head);
-		if (len != 0) {
-		    str = head[0 .. len - 2] + str;
-		}
-	    }
-
-	    if (sscanf(str, "SSH-2.0-%*s") == 0) {
+	if (sscanf(buffer, "%s\r\n%s", version, buffer) != 0 ||
+	    sscanf(buffer, "%s\n%s", version, buffer) != 0) {
+	    if (sscanf(version, "SSH-2.0-%*s") == 0) {
 		__send_message("Protocol mismatch.\r\n");
 		destruct_object(this_object());
 	    } else {
-		ssh::start_transport(str);
-
 		str = buffer;
 		buffer = nil;
-		if (strlen(str) != 0 &&
-		    ssh::receive_message(str) == MODE_DISCONNECT) {
-		    destruct_object(this_object());
+		ssh::start_transport(version);
+
+		if (strlen(str) == 0) {
+		    return;
 		}
 	    }
+	} else {
+	    return;
 	}
-    } else if (ssh::receive_message(str) == MODE_DISCONNECT) {
+    }
+
+    if (ssh::receive_message(str) == MODE_DISCONNECT) {
 	destruct_object(this_object());
     }
 }
 
+/*
+ * NAME:	user_input()
+ * DESCRIPTION:	used by the SSH layer to forward received and decrypted data
+ */
 static int user_input(string str)
 {
     user::receive_message(str);
     return MODE_RAW;
 }
 
+/*
+ * NAME:	send_message()
+ * DESCRIPTION:	intercept data from the user object and encrypt it
+ */
 static int send_message(mixed arg)
 {
     if (typeof(arg) == T_STRING) {
@@ -83,7 +90,11 @@ static int send_message(mixed arg)
     return TRUE;
 }
 
-void message_done()
+/*
+ * NAME:	message_done()
+ * DESCRIPTION:	forward to the SSH layer
+ */
+static void message_done()
 {
     if (ssh::message_done() == MODE_DISCONNECT) {
 	destruct_object(this_object());

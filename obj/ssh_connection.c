@@ -13,6 +13,8 @@ static int client(string str);
  *			   Section 1: authentication			     *
  * ========================================================================= */
 
+private int logged_in;		/* already logged in? */
+
 /*
  * NAME:	userauth_banner()
  * DESCRIPTION:	display a banner during the authentication period
@@ -83,7 +85,7 @@ static int userauth(string str)
 
     switch (str[0]) {
     case SSH_MSG_SERVICE_REQUEST:
-	if (get_string(str, 1) == "ssh-userauth" && !query_user()) {
+	if (get_string(str, 1) == "ssh-userauth" && !logged_in) {
 	    ::message(make_mesg(SSH_MSG_SERVICE_ACCEPT) +
 		      make_string("ssh-userauth"));
 	} else {
@@ -96,7 +98,7 @@ static int userauth(string str)
 	break;
 
     case SSH_MSG_USERAUTH_REQUEST:
-	if (!query_user()) {
+	if (!logged_in) {
 	    offset = 1;                    name = get_string(str, offset);
 	    offset += 4 + strlen(name);    service = get_string(str, offset);
 	    offset += 4 + strlen(service); method = get_string(str, offset);
@@ -172,8 +174,9 @@ static int userauth(string str)
 
 			if (SSHD->valid_public_key(name, publickey) &&
 			    ssh_dsa_verify(data, publickey, signature)) {
-			    if (get_user(name)) {
-				do_login();
+			    if (ssh_get_user(name)) {
+				logged_in = TRUE;
+				ssh_do_login();
 				::message(make_mesg(SSH_MSG_USERAUTH_SUCCESS));
 			    } else {
 				/* no such user? */
@@ -192,19 +195,22 @@ static int userauth(string str)
 		case "password":
 		    if (!str[offset]) {
 			password = get_string(str, offset + 1);
-			if (get_user(name) && check_password(password)) {
-			    do_login();
+			if (ssh_get_user(name) && ssh_check_password(password))
+			{
+			    logged_in = TRUE;
+			    ssh_do_login();
 			    ::message(make_mesg(SSH_MSG_USERAUTH_SUCCESS));
 			    break;
 			}
 			DEBUG(0, "login failed for " + name);
 			::message(make_mesg(SSH_MSG_USERAUTH_FAILURE) +
-				  make_string("login failed") +
+				  make_string("publickey,password") +
 				  "\0");
-			if (!get_user(name)) {
+			if (!ssh_get_user(name)) {
 			    /* not allowed to try again */
 			    return MODE_DISCONNECT;
 			}
+			break;
 		    }
 		    ::message(make_mesg(SSH_MSG_USERAUTH_FAILURE) +
 			      make_string("publickey,password") +
@@ -218,7 +224,7 @@ static int userauth(string str)
 	break;
 
     default:
-	if (query_user()) {
+	if (logged_in) {
 	    return client(str);
 	}
 	break;
@@ -232,10 +238,10 @@ static int userauth(string str)
  *			  Section 2: connection layer			     *
  * ========================================================================= */
 
-int channel;		/* channel ID */
-int window_size;	/* transmit window */
-int packet_size;	/* maximum packet size */
-int program;		/* program started? */
+private int channel;		/* channel ID */
+private int window_size;	/* transmit window */
+private int packet_size;	/* maximum packet size */
+private int program;		/* program started? */
 
 /*
  * NAME:	message()
