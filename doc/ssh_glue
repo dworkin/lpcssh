@@ -63,8 +63,9 @@ the mudlib:
     void start_transport(string version);
 
 	This function should be called after a SSH client has connected and
-	sent its version string.  The argument to the function is the version
-	string stripped of any trailing CR and NL characters.
+	the mudlib and the client have exchanged SSH version strings.  The
+	argument to the function is the client's version string, stripped of
+	any trailing CR and NL characters.
 
     int receive_message(string str);
 
