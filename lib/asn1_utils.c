@@ -83,7 +83,6 @@ interpret_asn1(mixed *asn1, varargs int indent)
 	    case ASN_BOOLEAN:
 		return
 		    spaces + description + " " + (asn1[ASN_CONTENTS][0] ? "TRUE" : "FALSE") + "\n";
-	    case ASN_OCTET_STR:
 	    case ASN_NUMERIC_STR:
 	    case ASN_PRINT_STR:
 	    case ASN_IA5_STR:

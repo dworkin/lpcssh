@@ -48,7 +48,8 @@ static string base64_decode(string str)
  */
 static string parse_public_key(string str)
 {
-    if (sscanf(str, "ssh-dss %s ", str) == 0) {
+    if (sscanf(str, "ssh-dss %s ", str) == 0 &&
+	sscanf(str, "ssh-rsa %s ", str) == 0) {
 	return nil;
     }
     return base64_decode(str);
@@ -80,6 +81,9 @@ static string hexdump(string str)
 
     result = str + str + str;
     len = strlen(str);
+    if (!len) {
+	return "";
+    }
     for (i = 0; i < len; i++) {
 	int ch;
 

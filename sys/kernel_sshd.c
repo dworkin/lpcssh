@@ -152,6 +152,16 @@ int valid_public_key(string name, string publickey)
 		return 1;
 	    }
 	}
+	str = read_file("~" + name + "/.ssh/id_rsa.pub");
+	if (str) {
+	    string pkey;
+
+	    sscanf(str, "%s\n", str);
+	    pkey = parse_public_key(str);
+	    if (pkey && pkey == publickey) {
+		return 1;
+	    }
+	}
 	str = read_file("~" + name + "/.ssh/authorized_keys");
 	if (str) {
 	    int    i, sz;
