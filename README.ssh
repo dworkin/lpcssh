@@ -42,6 +42,8 @@ INSTALLATION:
    'keys'.  The created files should be named 'id_dsa' and 'id_dsa.pub'.  If
    you skip this step, default cryptographic keys included with this release
    will be used.
+ - In your DGD configuration file, make sure that the array_size limit is at
+   least 4000.
  - Start DGD, and login using the following command:
 
 	ssh -T -p 6048 <hostname>
