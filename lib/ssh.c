@@ -207,7 +207,7 @@ int receive_message(string str)
 	}
 
 	ibuffer += str;
-	while (query_conn()) {
+	while (this_object()) {
 	    if (length < 0) {
 		/*
 		 * new packet
