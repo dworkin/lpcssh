@@ -3,9 +3,9 @@
 
 # define SSH_DEBUG(level, mesg) ((level) <= SSH_DEBUG_LEVEL ? DRIVER->message("SSH:debug" + (level) + ": " + (mesg) + "\n") : 0)
 
-# define SSH_GLUE		SSH_KERNEL_GLUE
-# define SSH_GLUE_CALL		(previous_program() == LIB_CONN)
-# define SSH_GLUE_RLIMITS(f, a)	call_limited(#f, a)
+# define SSH_GLUE			SSH_KERNEL_GLUE
+# define SSH_GLUE_CALL			(previous_program() == LIB_CONN)
+# define SSH_GLUE_RLIMITS(r, f, a)	r = call_limited(#f, a)
 
 # define SSH_KERNEL_GLUE	"/usr/System/lib/ssh_kernel"
 # define SSHD			"/usr/System/sys/kernel_sshd"
