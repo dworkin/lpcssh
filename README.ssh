@@ -1,32 +1,21 @@
-SSH login for DGD, version 0.2
+SSH login for DGD, version 0.3
 Version 0.1 written by Felix A. Croes  <felix@dworkin.nl>
 Released into the public domain.
 
-DGD 1.2.82 or later, with kernel library 1.2.25 or later required for this
-release.
+DGD 1.2.82 or later is required, and either the kernel library or Melville.
 
 
-FILES:
-
-/usr/System/sys/sshd.c		binary port manager running as ssh server
-/usr/System/obj/ssh.c		connection/user object that sits in between
-				the usual connection and user objects, taking
-				care of encryption
-/usr/System/keys		the location where the host keys are stored
-/usr/System/initd.ssh		a sample initd.c file
-
-
-INSTALLATION:
+KERNEL LIBRARY INSTALLATION:
 
  - Move these files to /usr/System of your mudlib.
  - If you already have a file /usr/System/initd.c, add the following line
    to its create function:
 
-	compile_object("~/sys/sshd");
+	compile_object("~/sys/kernel_sshd");
 
    Otherwise, just rename the supplied file initd.ssh to initd.c.
  - By default, sshd will listen on the first binary port.  To change this,
-   edit the line in sys/sshd.c that looks like this:
+   edit the line in sys/kernel_sshd.c that looks like this:
 
 	userd->set_binary_manager(0, this_object());
 
@@ -56,19 +45,14 @@ INSTALLATION:
    a password, ssh will still prompt them for one -- just hit the return key.
  - You won't see anything while logging in (that includes the room you login
    to and the players in it).
+ - The file ~username/.ssh/authorized_keys (within the mudlib) is used for
+   authentication, if it exists.
 
 
-CAUTION:
+MELVILLE INSTALLATION:
 
-I spent only a few days working on this.  The code does not check for all of
-the conditions that it should, and the connection layer of obj/ssh.c is known
-to be very incomplete.  I verified that you cannot login with the wrong
-password, but that's about it.
-
-If you want to make your own changes, the following documentation might be
-useful:
-
-    http://www.ietf.org/html.charters/secsh-charter.html
-
-
-Felix Croes, February 23th 2004
+ - Make a subdirectory ssh in the mudlib /system directory, and move these
+   files into it.
+ - Apply the diffs in diffs/melville.
+ - As with the kernel library, it only works well for pre-existing users and
+   you won't see anything when you login.
