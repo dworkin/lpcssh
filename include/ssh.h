@@ -7,6 +7,9 @@
 #  include "kernel_ssh.h"
 # endif
 
+# ifdef MELVILLE_GLUE
+#  include "/secure/ssh/include/melville_ssh.h"
+# endif
 
 
 # define SSH_MSG_DISCONNECT			1
