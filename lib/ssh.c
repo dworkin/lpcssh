@@ -627,11 +627,23 @@ private int receive_packet(string str)
 }
 
 /*
+ * NAME:	message()
+ * DESCRIPTION:	send a message (well, a packet) to the connection
+ */
+static int message(string str)
+{
+    return send_packet(str);
+}
+
+/*
  * NAME:	create_transport()
  * DESCRIPTION:	initialize transport layer
  */
-private void create_transport()
+static void create_transport()
 {
+    glue::create_glue();
+    create_packet();
+
     /* p = 2^1024 - 2^960 - 1 + 2^64 * floor( 2^894 Pi + 129093 ) */
     p = "\0" +
 	"\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xC9\x0F\xDA\xA2\x21\x68\xC2\x34" +
@@ -644,24 +656,4 @@ private void create_transport()
 	"\x49\x28\x66\x51\xEC\xE6\x53\x81\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF";
     /* q = (p - 1) / 2 */
     q = asn_rshift(p, 1);
-}
-
-/*
- * NAME:	message()
- * DESCRIPTION:	send a message (well, a packet) to the connection
- */
-static int message(string str)
-{
-    return send_packet(str);
-}
-
-/*
- * NAME:	create()
- * DESCRIPTION:	initialize ssh transport layer
- */
-static void create()
-{
-    glue::create();
-    create_packet();
-    create_transport();
 }

@@ -1,28 +1,13 @@
-# include <kernel/kernel.h>
-
 # define SSH_DEBUG_LEVEL 2
-# define SSH_DEBUG(level, mesg) ((level) <= SSH_DEBUG_LEVEL ? DRIVER->message("SSH:debug" + (level) + ": " + (mesg) + "\n") : 0)
+
+# define KERNEL_GLUE
 
 
-/* start of kernel glue */
-
-# include <kernel/user.h>
-
-# define SSH_GLUE		SSH_KERNEL_GLUE
-# define SSH_GLUE_CALL		(previous_program() == LIB_CONN)
-# define SSH_GLUE_RLIMITS(f, a)	call_limited(f, a)
-
-/* end of kernel glue */
+# ifdef KERNEL_GLUE
+#  include "kernel_ssh.h"
+# endif
 
 
-# define SSH_KERNEL_GLUE	"/usr/System/lib/ssh_kernel"
-# define SSHD			"/usr/System/sys/sshd"
-# define SSH_UTILS		"/usr/System/lib/ssh_utils"
-# define SSH_TRANSPORT		"/usr/System/lib/ssh"
-# define SSH_CONNECTION		"/usr/System/obj/ssh_connection"
-# define SSH_USER		"/usr/System/obj/user"
-# define SSH_WIZTOOL		"/usr/System/obj/wiztool"
-# define SSH_USERD		"/usr/System/sys/telnetd"
 
 # define SSH_MSG_DISCONNECT			1
 # define SSH_MSG_IGNORE				2

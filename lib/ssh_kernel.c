@@ -11,6 +11,7 @@ inherit user LIB_USER;
  * ========================================================================= */
 
 static void start_transport(string str);      /* supplied by transport layer */
+static void create_ssh();
 
 
 /*
@@ -118,10 +119,21 @@ void disconnect()
 }
 
 /*
- * NAME:	create()
+ * NAME:	create_glue()
  * DESCRIPTION:	initialize ssh kernel glue
  */
-static void create()
+static void create_glue()
 {
     conn::create("telnet");	/* pretend */
+}
+
+/*
+ * NAME:	create()
+ * DESCRIPTION:	initialize ssh object
+ */
+static void create(int clone)
+{
+    if (clone) {
+	create_ssh();
+    }
 }

@@ -1,5 +1,3 @@
-# include <kernel/kernel.h>
-# include <kernel/user.h>
 # include "ssh.h"
 
 # define DEBUG SSH_DEBUG
@@ -404,13 +402,11 @@ static int client(string str)
 }
 
 /*
- * NAME:	create()
+ * NAME:	create_ssh()
  * DESCRIPTION:	initialize secure shell
  */
-static void create(int clone)
+static void create_ssh()
 {
-    if (clone) {
-	::create();
-	channel = -1;
-    }
+    create_transport();
+    channel = -1;
 }
