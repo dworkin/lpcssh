@@ -1,0 +1,72 @@
+SSH login for DGD, version 0.1
+Written by Felix A. Croes  <felix@dworkin.nl>
+Released into the public domain.
+
+DGD 1.2.82 or later, with kernel library 1.2.25 or later required for this
+release.
+
+
+FILES:
+
+/usr/System/sys/sshd.c		binary port manager running as ssh server
+/usr/System/obj/ssh.c		connection/user object that sits in between
+				the usual connection and user objects, taking
+				care of encryption
+/usr/System/keys		the location where the host keys are stored
+/usr/System/initd.ssh		a sample initd.c file
+
+
+INSTALLATION:
+
+ - Extract these files in /usr/System of your mudlib.
+ - If you already have a file /usr/System/initd.c, add the following line
+   to its create function:
+
+	compile_object("~/sys/sshd");
+
+   Otherwise, just rename the supplied file initd.ssh to initd.c.
+ - By default, sshd will listen on the first binary port.  To change this,
+   edit the line in sys/sshd.c that looks like this:
+
+	userd->set_binary_manager(0, this_object());
+
+   and change the 0 to a indicate a different port.
+ - The sshd object will set the ticks limit to 3,000,000 for System.  This is
+   about the mininum required to perform the public key crypto functions.
+   If you already have a higher tick limit for your mudlib, remove from
+   sys/sshd.c the line that looks like this:
+
+	rsrc::rsrc_set_limit("System", "ticks", 3000000);
+
+ - Run the command 'ssh-keygen -t dsa' and save the files in the directory
+   'keys'.  The created files should be named 'id_dsa' and 'id_dsa.pub'.  If
+   you skip this step, default cryptographic keys included with this release
+   will be used.
+ - Start DGD, and login using the following command:
+
+	ssh -T -p 6048 <hostname>
+
+   -T means not to use a pseudo-tty, -p 6048 connects to the binary port which
+   is 6048 by default (this can be changed by editing the mud.dgd configuration
+   file) and <hostname> is the name of the host to connect to.  If you're
+   running ssh on the same host as DGD, just use 'localhost'.
+ - Though users without programming rights in the kernel library do not have
+   a password, ssh will still prompt them for one -- just hit the return key.
+ - You won't see anything while logging in (that includes the room you login
+   to and the players in it).
+
+
+CAUTION:
+
+I spent only a few days working on this.  The code does not check for all of
+the conditions that it should, and the connection layer of obj/ssh.c is known
+to be very incomplete.  I verified that you cannot login with the wrong
+password, but that's about it.
+
+If you want to make your own changes, the following documentation might be
+useful:
+
+    http://www.ietf.org/html.charters/secsh-charter.html
+
+
+Felix Croes, February 23th 2004
