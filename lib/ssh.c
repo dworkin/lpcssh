@@ -61,13 +61,10 @@ private string encrypt_packet(string str)
     length = strlen(str);
     encrypted = allocate(length / 8);
     for (i = n = 0; i < length; i += 8, n++) {
-	estate = encrypt("DES",
-			 decrypt("DES",
-				 encrypt("DES",
-					 asn_xor(str[i .. i + 7], estate),
-					 ekey1),
-				 ekey2),
-			 ekey3);
+	estate = encrypt("DES", ekey3,
+			 decrypt("DES", ekey2,
+				 encrypt("DES", ekey1,
+					 asn_xor(str[i .. i + 7], estate)))),
 	encrypted[n] = estate;
     }
     return implode(encrypted, "");
@@ -86,11 +83,9 @@ private string decrypt_string(string str)
     decrypted = allocate(length / 8);
     for (i = n = 0; i < length; i += 8, n++) {
 	chunk = str[i .. i + 7];
-	decrypted[n] = asn_xor(decrypt("DES",
-				       encrypt("DES",
-					       decrypt("DES", chunk, dkey3),
-					       dkey2),
-				       dkey1),
+	decrypted[n] = asn_xor(decrypt("DES", dkey1,
+				       encrypt("DES", dkey2,
+					       decrypt("DES", dkey3, chunk))),
 			       dstate);
 	dstate = chunk;
     }
