@@ -1,8 +1,8 @@
-SSH login for DGD, version 0.3
+SSH login for DGD, version 0.3a
 Version 0.1 written by Felix A. Croes  <felix@dworkin.nl>
 Released into the public domain.
 
-DGD 1.2.82 or later is required, and either the kernel library or Melville.
+DGD 1.2.105 or later is required, and either the kernel library or Melville.
 
 
 KERNEL LIBRARY INSTALLATION:
