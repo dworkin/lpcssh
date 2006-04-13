@@ -15,3 +15,5 @@
 # define SSH_USER		"/usr/System/obj/kernel_user"
 # define SSH_WIZTOOL		"/usr/System/obj/kernel_wiztool"
 # define SSH_USERD		"/usr/System/sys/kernel_telnetd"
+
+# define ASN1_UTILS		"/usr/System/lib/asn1_utils"

@@ -2,8 +2,6 @@
  * Based on ITU-T Rec X.690 (12/97).
  */
 
-# define ASN1_UTILS "/usr/System/lib/asn1_utils"
-
 /* Constants to define the results of parse_asn1(), */
 
 # define ASN_CLASS	    0

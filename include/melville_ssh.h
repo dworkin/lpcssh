@@ -13,6 +13,8 @@
 # define SSH_CONNECTION		"/system/ssh/obj/ssh_connection"
 # define SSH_USER		"/system/ssh/obj/melville_user"
 
+# define ASN1_UTILS		"/system/ssh/lib/asn1_utils"
+
 
 /* compatibility */
 # define TRUE			1
