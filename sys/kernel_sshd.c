@@ -4,7 +4,7 @@
 
 # include "ssh.h"
 
-inherit LIB_CONN;
+inherit LIB_USER;
 inherit rsrc API_RSRC;
 private inherit SSH_UTILS;
 
