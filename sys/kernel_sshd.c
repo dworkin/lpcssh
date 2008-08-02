@@ -46,7 +46,7 @@ static create()
     }
 
     if (hash_crc32(host_key, pub_host_key) == 6922236) {
-	DRIVER->message("*WARNING*\n\nYou are using pre-configured host keys.  To install your own host keys, run the\ncommand 'ssh-keygen -t dsa' and save the files in mudlib directory\n/usr/System/keys.\n\n");
+	DRIVER->message("*WARNING*\n\nYou are using pre-configured host keys.  To install your own host keys, run the\ncommand 'ssh-keygen -t dsa' and save the files in mudlib directory\n" + USR_DIR + "/System/keys.\n\n");
     }
 
     /*
