@@ -108,7 +108,8 @@ private string hmac(string key, string str)
 	   "\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c" +
 	   "\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c" +
 	   "\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c\x5c";
-    return hash_sha1(asn_xor(key, opad), hash_sha1(asn_xor(key, ipad), str));
+    return hash_string("SHA1", asn_xor(key, opad),
+		       hash_string("SHA1", asn_xor(key, ipad), str));
 }
 
 /*
@@ -362,7 +363,7 @@ private string ssh_dss_sign(string m, string host_key)
 
     /* s = (k ^ -1 * (H(m) + x * r)) mod q */
     s = asn_mult(asn_pow(k, asn_sub(q, "\2", q), q),
-		 asn_add("\0" + hash_sha1(m), asn_mult(x, r, q), q),
+		 asn_add("\0" + hash_string("SHA1", m), asn_mult(x, r, q), q),
 		 q);
 
     r = ("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" + r)[strlen(r) ..];
@@ -398,16 +399,16 @@ private void set_keys()
     string str, client_key, server_key;
 
     str = make_string(K) + H;
-    dstate = hash_sha1(str, "A", session_id)[.. 7];
-    estate = hash_sha1(str, "B", session_id)[.. 7];
-    client_key = hash_sha1(str, "C", session_id);
-    client_key += hash_sha1(str, client_key);
-    server_key = hash_sha1(str, "D", session_id);
-    server_key += hash_sha1(str, server_key);
-    client_mac = hash_sha1(str, "E", session_id) +
+    dstate = hash_string("SHA1", str, "A", session_id)[.. 7];
+    estate = hash_string("SHA1", str, "B", session_id)[.. 7];
+    client_key = hash_string("SHA1", str, "C", session_id);
+    client_key += hash_string("SHA1", str, client_key);
+    server_key = hash_string("SHA1", str, "D", session_id);
+    server_key += hash_string("SHA1", str, server_key);
+    client_mac = hash_string("SHA1", str, "E", session_id) +
 		 "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" +
 		 "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
-    server_mac = hash_sha1(str, "F", session_id) +
+    server_mac = hash_string("SHA1", str, "F", session_id) +
 		 "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" +
 		 "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
@@ -550,14 +551,15 @@ private int receive_packet(string str)
 	    K = asn_pow(e, y, p);
 
 	    /* H = shared secret */
-	    H = hash_sha1(make_string(client_version),
-			  make_string(SSHD->query_version()),
-			  make_string(client_kexinit),
-			  make_string(server_kexinit),
-			  make_string(str),
-			  make_mpint(e),
-			  make_mpint(f),
-			  make_mpint(K));
+	    H = hash_string("SHA1",
+			    make_string(client_version),
+			    make_string(SSHD->query_version()),
+			    make_string(client_kexinit),
+			    make_string(server_kexinit),
+			    make_string(str),
+			    make_mpint(e),
+			    make_mpint(f),
+			    make_mpint(K));
 	    if (!session_id) {
 		session_id = H;
 	    }
