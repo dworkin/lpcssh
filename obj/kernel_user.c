@@ -46,10 +46,6 @@ void do_login()
 	connection(previous_object());
 	state[previous_object()] = STATE_NORMAL;
 	tell_audience(Name + " logs in.\n");
-	if (!accinit) {
-	    access::create();
-	    accinit = TRUE;
-	}
 	if (!wiztool &&
 	    (name == "admin" || sizeof(query_users() & ({ name })) != 0)) {
 	    wiztool = clone_object(SSH_WIZTOOL, name);
