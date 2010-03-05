@@ -1,4 +1,4 @@
-# define SSH_DEBUG_LEVEL 2
+# define SSH_DEBUG_LEVEL 1
 
 # define KERNEL_GLUE
 
